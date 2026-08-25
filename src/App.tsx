@@ -390,7 +390,16 @@ export default function App() {
   const imageCountInQueue = fileItems.filter((it) => it.sourceFormat === 'image').length;
 
   const handleQuickShare = async () => {
-    const shareUrl = window.location.origin;
+    const getShareUrl = () => {
+      const href = window.location.href;
+      if (href.includes('github.io/pdf-converter')) {
+        return 'https://yusufhumayun.github.io/pdf-converter/';
+      }
+      const clean = window.location.origin + window.location.pathname;
+      return clean.endsWith('/') ? clean : `${clean}/`;
+    };
+
+    const shareUrl = getShareUrl();
     const shareTitle = 'FreePDF Tools - Free Online PDF, OCR & Photo KB Suite';
     const shareText = 'Check out FreePDF Tools: 100% Free & Private in-browser PDF, OCR and KB Photo Suite!';
 

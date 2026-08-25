@@ -33,7 +33,20 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
 
   if (!isOpen) return null;
 
-  const currentUrl = typeof window !== 'undefined' ? window.location.origin : 'https://freepdftools.com';
+  const getShareUrl = () => {
+    if (typeof window !== 'undefined') {
+      const href = window.location.href;
+      if (href.includes('github.io/pdf-converter')) {
+        return 'https://yusufhumayun.github.io/pdf-converter/';
+      }
+      // Clean URL (remove hash and query params)
+      const clean = window.location.origin + window.location.pathname;
+      return clean.endsWith('/') ? clean : `${clean}/`;
+    }
+    return 'https://yusufhumayun.github.io/pdf-converter/';
+  };
+
+  const currentUrl = getShareUrl();
   const shareTitle = 'FreePDF Tools - 100% Free & Private Online PDF, OCR & Photo KB Suite';
   const shareText = 'Check out FreePDF Tools: Convert, Merge, Split, OCR, and resize exam photos & signatures to exact KB limits in-browser with zero uploads!';
 
