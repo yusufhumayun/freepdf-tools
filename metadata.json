@@ -1,6 +1,6 @@
 {
   "name": "OmniPDF Studio",
-  "description": "FreePDF Tools: 100% free and private client-side PDF converter, merge, split, sign, stamp, and photo/signature KB resizer.",
+  "description": "FreePDF Tools: 100% free and private PDF converter, AI PDF Assistant (Gemini), OCR, merge, split, sign, stamp, and photo/signature KB resizer.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

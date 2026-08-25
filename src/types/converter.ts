@@ -4,7 +4,8 @@ export type ConversionCategory =
   | 'ocr'
   | 'image-suite' 
   | 'sign-pdf' 
-  | 'pdf-tools';
+  | 'pdf-tools'
+  | 'ai-chat';
 
 export type TargetFormat = 
   | 'docx' 

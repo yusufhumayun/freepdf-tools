@@ -43,6 +43,7 @@ import { FeedbackModal } from './components/FeedbackModal';
 import { ImageSignatureSuite } from './components/ImageSignatureSuite';
 import { PdfSignaturePad } from './components/PdfSignaturePad';
 import { OcrExtractSuite } from './components/OcrExtractSuite';
+import { AiPdfChatSuite } from './components/AiPdfChatSuite';
 import { FaqSection } from './components/FaqSection';
 import { 
   ShieldCheck, 
@@ -69,7 +70,7 @@ export default function App() {
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.replace('#', '');
-      if (['pdf-to-other', 'other-to-pdf', 'ocr', 'image-suite', 'sign-pdf', 'pdf-tools'].includes(hash)) {
+      if (['pdf-to-other', 'other-to-pdf', 'ocr', 'image-suite', 'sign-pdf', 'pdf-tools', 'ai-chat'].includes(hash)) {
         setActiveCategory(hash as ConversionCategory);
       }
     };
@@ -446,7 +447,12 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
         
         {/* Dynamic Category View */}
-        {activeCategory === 'ocr' ? (
+        {activeCategory === 'ai-chat' ? (
+          /* AI PDF ASSISTANT & CHAT VIEW */
+          <div className="space-y-6">
+            <AiPdfChatSuite />
+          </div>
+        ) : activeCategory === 'ocr' ? (
           /* OPTICAL CHARACTER RECOGNITION (OCR) VIEW */
           <div className="space-y-6">
             <OcrExtractSuite />

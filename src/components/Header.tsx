@@ -10,7 +10,9 @@ import {
   FileText,
   HelpCircle,
   Share2,
-  MessageSquare
+  MessageSquare,
+  Bot,
+  Sparkles
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -28,6 +30,14 @@ export const Header: React.FC<HeaderProps> = ({
   onQuickShare,
 }) => {
   const tabs = [
+    {
+      id: 'ai-chat' as ConversionCategory,
+      label: 'AI PDF Assistant',
+      badge: 'Chat, Summarize & Q&A with Gemini',
+      icon: Bot,
+      color: 'text-violet-400',
+      isNew: true,
+    },
     {
       id: 'pdf-to-other' as ConversionCategory,
       label: 'PDF to Other',
@@ -138,9 +148,9 @@ export const Header: React.FC<HeaderProps> = ({
 
         </div>
 
-        {/* Dedicated Category Navigation Bar - All 6 Tools Visible & Accessible */}
+        {/* Dedicated Category Navigation Bar - All 7 Tools Visible & Accessible */}
         <div className="py-2 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-700">
-          <nav className="flex items-center gap-1.5 min-w-max md:min-w-0 md:grid md:grid-cols-6 p-1 bg-slate-950/80 rounded-xl border border-slate-800/80 shadow-inner">
+          <nav className="flex items-center gap-1.5 min-w-max lg:min-w-0 lg:grid lg:grid-cols-7 p-1 bg-slate-950/80 rounded-xl border border-slate-800/80 shadow-inner">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeCategory === tab.id;
@@ -149,15 +159,18 @@ export const Header: React.FC<HeaderProps> = ({
                   key={tab.id}
                   id={`tab-${tab.id}`}
                   onClick={() => onSelectCategory(tab.id)}
-                  className={`flex items-center justify-center space-x-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer whitespace-nowrap ${
+                  className={`flex items-center justify-center space-x-1.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer whitespace-nowrap relative ${
                     isActive
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 font-semibold'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
                   }`}
                   title={tab.badge}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : tab.color}`} />
-                  <span>{tab.label}</span>
+                  <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-white' : tab.color}`} />
+                  <span className="truncate">{tab.label}</span>
+                  {tab.isNew && !isActive && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-ping absolute top-1.5 right-1.5" />
+                  )}
                 </button>
               );
             })}
