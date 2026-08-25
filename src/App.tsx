@@ -392,8 +392,11 @@ export default function App() {
   const handleQuickShare = async () => {
     const getShareUrl = () => {
       const href = window.location.href;
+      if (href.includes('github.io/freepdf-tools')) {
+        return 'https://yusufhumayun.github.io/freepdf-tools/';
+      }
       if (href.includes('github.io/pdf-converter')) {
-        return 'https://yusufhumayun.github.io/pdf-converter/';
+        return 'https://yusufhumayun.github.io/freepdf-tools/';
       }
       const clean = window.location.origin + window.location.pathname;
       return clean.endsWith('/') ? clean : `${clean}/`;

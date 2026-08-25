@@ -36,14 +36,17 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
   const getShareUrl = () => {
     if (typeof window !== 'undefined') {
       const href = window.location.href;
+      if (href.includes('github.io/freepdf-tools')) {
+        return 'https://yusufhumayun.github.io/freepdf-tools/';
+      }
       if (href.includes('github.io/pdf-converter')) {
-        return 'https://yusufhumayun.github.io/pdf-converter/';
+        return 'https://yusufhumayun.github.io/freepdf-tools/';
       }
       // Clean URL (remove hash and query params)
       const clean = window.location.origin + window.location.pathname;
       return clean.endsWith('/') ? clean : `${clean}/`;
     }
-    return 'https://yusufhumayun.github.io/pdf-converter/';
+    return 'https://yusufhumayun.github.io/freepdf-tools/';
   };
 
   const currentUrl = getShareUrl();
