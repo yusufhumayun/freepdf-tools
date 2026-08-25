@@ -94,7 +94,79 @@ export async function watermarkPdf(
 }
 
 /**
- * 3. Rotate PDF Pages
+ * 3. Add Page Numbers to PDF
+ */
+export async function addPageNumbersToPdf(
+  file: File,
+  options: {
+    position?: 'bottom-center' | 'bottom-right' | 'top-right';
+    format?: 'Page {n} of {total}' | '{n} / {total}' | 'Page {n}' | '{n}';
+    fontSize?: number;
+    startFrom?: number;
+  } = {},
+  onProgress?: (progress: number, status: string) => void
+): Promise<{ blob: Blob; fileName: string }> {
+  const {
+    position = 'bottom-center',
+    format = 'Page {n} of {total}',
+    fontSize = 10,
+    startFrom = 1,
+  } = options;
+
+  onProgress?.(20, 'Loading PDF document...');
+  const arrayBuffer = await file.arrayBuffer();
+  const pdfDoc = await PDFDocument.load(arrayBuffer);
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const pages = pdfDoc.getPages();
+  const total = pages.length;
+
+  onProgress?.(50, `Adding page numbers to ${total} pages...`);
+
+  for (let i = 0; i < total; i++) {
+    const page = pages[i];
+    const pageNum = startFrom + i;
+    const { width, height } = page.getSize();
+
+    const label = format
+      .replace('{n}', pageNum.toString())
+      .replace('{total}', (startFrom + total - 1).toString());
+
+    const textWidth = font.widthOfTextAtSize(label, fontSize);
+
+    let x = (width - textWidth) / 2;
+    let y = 25; // bottom margin
+
+    if (position === 'bottom-right') {
+      x = width - textWidth - 35;
+      y = 25;
+    } else if (position === 'top-right') {
+      x = width - textWidth - 35;
+      y = height - 30;
+    }
+
+    page.drawText(label, {
+      x,
+      y,
+      size: fontSize,
+      font,
+      color: rgb(0.3, 0.3, 0.35),
+    });
+  }
+
+  onProgress?.(90, 'Saving numbered PDF...');
+  const pdfBytes = await pdfDoc.save();
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const baseName = file.name.replace(/\.[^/.]+$/, '');
+
+  onProgress?.(100, 'Page numbers stamped!');
+  return {
+    blob,
+    fileName: `${baseName}_numbered.pdf`,
+  };
+}
+
+/**
+ * 4. Rotate PDF Pages
  */
 export async function rotatePdfPages(
   file: File,
@@ -125,7 +197,7 @@ export async function rotatePdfPages(
 }
 
 /**
- * 4. Organize, Reorder, or Filter PDF Pages
+ * 5. Organize, Reorder, or Filter PDF Pages
  */
 export async function reorganizePdf(
   file: File,
@@ -161,3 +233,55 @@ export async function reorganizePdf(
     fileName: `${baseName}_reorganized.pdf`,
   };
 }
+
+/**
+ * 6. Stamp signature / image onto PDF
+ */
+export async function stampSignatureOnPdf(
+  pdfFile: File,
+  signaturePngBlob: Blob,
+  placement: {
+    pageNumber: number; // 1-indexed
+    xPercent: number; // 0 to 100
+    yPercent: number; // 0 to 100
+    width: number;
+    height: number;
+  },
+  onProgress?: (progress: number, status: string) => void
+): Promise<{ blob: Blob; fileName: string }> {
+  onProgress?.(20, 'Loading PDF & Signature...');
+  const pdfArrayBuffer = await pdfFile.arrayBuffer();
+  const pdfDoc = await PDFDocument.load(pdfArrayBuffer);
+
+  const sigArrayBuffer = await signaturePngBlob.arrayBuffer();
+  const signatureImage = await pdfDoc.embedPng(sigArrayBuffer);
+
+  const pages = pdfDoc.getPages();
+  const targetPageIdx = Math.max(0, Math.min(placement.pageNumber - 1, pages.length - 1));
+  const page = pages[targetPageIdx];
+  const { width: pageWidth, height: pageHeight } = page.getSize();
+
+  // Convert percentages to PDF coordinate space (y is from bottom up in PDF)
+  const x = (placement.xPercent / 100) * pageWidth;
+  const y = pageHeight - ((placement.yPercent / 100) * pageHeight) - placement.height;
+
+  onProgress?.(60, 'Stamping signature onto page...');
+  page.drawImage(signatureImage, {
+    x: Math.max(0, x),
+    y: Math.max(0, y),
+    width: placement.width,
+    height: placement.height,
+  });
+
+  onProgress?.(90, 'Saving signed PDF...');
+  const pdfBytes = await pdfDoc.save();
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const baseName = pdfFile.name.replace(/\.[^/.]+$/, '');
+
+  onProgress?.(100, 'PDF Signed Successfully!');
+  return {
+    blob,
+    fileName: `${baseName}_signed.pdf`,
+  };
+}
+

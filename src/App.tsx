@@ -40,6 +40,8 @@ import { PdfToolsHub } from './components/PdfToolsHub';
 import { ConversionMatrix } from './components/ConversionMatrix';
 import { GithubDeployModal } from './components/GithubDeployModal';
 import { PageOrganizerModal } from './components/PageOrganizerModal';
+import { ImageSignatureSuite } from './components/ImageSignatureSuite';
+import { PdfSignaturePad } from './components/PdfSignaturePad';
 import { 
   ShieldCheck, 
   Zap, 
@@ -299,14 +301,11 @@ export default function App() {
   const handleConvertSingle = async (id: string) => {
     const item = fileItems.find((it) => it.id === id);
     if (!item) return;
-
-    // Special case: if multiple images are in queue and target is PDF, we can also offer merging them, or converting one by one
     await executeConversion(item);
   };
 
   // Batch convert all pending files
   const handleConvertAll = async () => {
-    // Check if we have multiple images that the user might want to combine into one PDF
     const pendingItems = fileItems.filter((it) => it.status !== 'completed');
     if (pendingItems.length === 0) return;
 
@@ -352,7 +351,17 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
         
         {/* Dynamic Category View */}
-        {activeCategory === 'pdf-tools' ? (
+        {activeCategory === 'image-suite' ? (
+          /* PHOTO & SIGNATURE RESIZER VIEW */
+          <div className="space-y-6">
+            <ImageSignatureSuite />
+          </div>
+        ) : activeCategory === 'sign-pdf' ? (
+          /* PDF SIGNATURE & STAMP PAD VIEW */
+          <div className="space-y-6">
+            <PdfSignaturePad />
+          </div>
+        ) : activeCategory === 'pdf-tools' ? (
           /* PDF TOOLBOX VIEW */
           <div className="space-y-6">
             <PdfToolsHub />
@@ -447,7 +456,7 @@ export default function App() {
           <div className="flex items-center space-x-2">
             <Lock className="w-4 h-4 text-emerald-400" />
             <span className="text-slate-400">
-              Zero-Server Architecture: All conversions are processed strictly in your client-side browser memory.
+              Zero-Server Architecture: All conversions and optimizations are processed strictly in your client-side browser memory.
             </span>
           </div>
 

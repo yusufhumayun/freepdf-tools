@@ -3,7 +3,8 @@ import {
   mergePdfFiles, 
   watermarkPdf, 
   rotatePdfPages, 
-  splitPdf 
+  splitPdf,
+  addPageNumbersToPdf 
 } from '../services/pdfTools';
 import { compressPdf } from '../services/pdfToFormat';
 import { downloadBlob, formatBytes } from '../utils/formatHelpers';
@@ -19,10 +20,11 @@ import {
   Sparkles, 
   ArrowRight,
   Layers,
-  ShieldCheck
+  ShieldCheck,
+  Hash
 } from 'lucide-react';
 
-type ToolTab = 'merge' | 'split' | 'compress' | 'watermark' | 'rotate';
+type ToolTab = 'merge' | 'split' | 'compress' | 'watermark' | 'rotate' | 'numbers';
 
 export const PdfToolsHub: React.FC = () => {
   const [activeTool, setActiveTool] = useState<ToolTab>('merge');
@@ -150,6 +152,7 @@ export const PdfToolsHub: React.FC = () => {
           { id: 'compress', label: 'Compress PDF', icon: FileDown },
           { id: 'watermark', label: 'Add Watermark', icon: Stamp },
           { id: 'rotate', label: 'Rotate Pages', icon: RotateCw },
+          { id: 'numbers', label: 'Page Numbers', icon: Hash },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTool === tab.id;
@@ -559,7 +562,113 @@ export const PdfToolsHub: React.FC = () => {
           </div>
         )}
 
+        {/* PAGE NUMBERS TOOL */}
+        {activeTool === 'numbers' && (
+          <PageNumbersPanel />
+        )}
+
       </div>
+    </div>
+  );
+};
+
+const PageNumbersPanel: React.FC = () => {
+  const [file, setFile] = useState<File | null>(null);
+  const [position, setPosition] = useState<'bottom-center' | 'bottom-right' | 'top-right'>('bottom-center');
+  const [format, setFormat] = useState<'Page {n} of {total}' | '{n} / {total}' | 'Page {n}' | '{n}'>('Page {n} of {total}');
+  const [startFrom, setStartFrom] = useState<number>(1);
+  const [fontSize, setFontSize] = useState<number>(10);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleAddNumbers = async () => {
+    if (!file) return;
+    try {
+      setIsProcessing(true);
+      const { blob, fileName } = await addPageNumbersToPdf(file, {
+        position,
+        format,
+        startFrom,
+        fontSize,
+      });
+      downloadBlob(blob, fileName);
+    } catch (err: any) {
+      alert(err.message || 'Failed to add page numbers');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-1">
+        <h3 className="text-lg font-bold text-white flex items-center space-x-2">
+          <Hash className="w-5 h-5 text-indigo-400" />
+          <span>Add Page Numbers to PDF</span>
+        </h3>
+        <p className="text-xs sm:text-sm text-slate-400">
+          Insert customizable page numbers, pagination counts, or headers/footers directly across all pages.
+        </p>
+      </div>
+
+      <div className="border-2 border-dashed border-slate-700 hover:border-indigo-500/80 rounded-xl p-6 text-center cursor-pointer bg-slate-950/40 relative">
+        <input
+          type="file"
+          accept=".pdf"
+          onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
+          className="absolute inset-0 opacity-0 cursor-pointer"
+        />
+        <Upload className="w-8 h-8 text-indigo-400 mx-auto mb-2" />
+        <p className="text-sm font-semibold text-white">
+          {file ? file.name : 'Select PDF to number'}
+        </p>
+        <p className="text-xs text-slate-400 mt-1">
+          {file ? `${formatBytes(file.size)} - Click to change` : 'Drag and drop PDF here'}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <label className="text-xs text-slate-400 font-medium">Position on Page</label>
+          <select
+            value={position}
+            onChange={(e) => setPosition(e.target.value as any)}
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+          >
+            <option value="bottom-center">Bottom Center</option>
+            <option value="bottom-right">Bottom Right</option>
+            <option value="top-right">Top Right</option>
+          </select>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-xs text-slate-400 font-medium">Numbering Style</label>
+          <select
+            value={format}
+            onChange={(e) => setFormat(e.target.value as any)}
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+          >
+            <option value="Page {n} of {total}">Page 1 of 10</option>
+            <option value="{n} / {total}">1 / 10</option>
+            <option value="Page {n}">Page 1</option>
+            <option value="{n}">1 (Plain Number)</option>
+          </select>
+        </div>
+      </div>
+
+      <button
+        onClick={handleAddNumbers}
+        disabled={!file || isProcessing}
+        className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-md shadow-indigo-600/30 transition flex items-center justify-center space-x-2 disabled:opacity-40"
+      >
+        {isProcessing ? (
+          <span>Stamping Page Numbers...</span>
+        ) : (
+          <>
+            <Hash className="w-4 h-4" />
+            <span>Stamp Page Numbers & Download</span>
+          </>
+        )}
+      </button>
     </div>
   );
 };

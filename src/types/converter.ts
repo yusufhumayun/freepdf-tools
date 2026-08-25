@@ -1,4 +1,9 @@
-export type ConversionCategory = 'pdf-to-other' | 'other-to-pdf' | 'pdf-tools';
+export type ConversionCategory = 
+  | 'pdf-to-other' 
+  | 'other-to-pdf' 
+  | 'image-suite' 
+  | 'sign-pdf' 
+  | 'pdf-tools';
 
 export type TargetFormat = 
   | 'docx' 

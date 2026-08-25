@@ -1,6 +1,6 @@
 {
   "name": "OmniPDF Studio",
-  "description": "Convert any PDF to DOCX, Excel, Images, Text, HTML, CSV and vice versa with 100% browser-based privacy.",
+  "description": "FreePDF Tools: 100% free and private client-side PDF converter, merge, split, sign, stamp, and photo/signature KB resizer.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

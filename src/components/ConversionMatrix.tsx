@@ -12,7 +12,10 @@ import {
   ArrowRightLeft,
   CheckCircle2,
   ShieldCheck,
-  Zap
+  Zap,
+  Crop,
+  PenTool,
+  Hash
 } from 'lucide-react';
 
 interface ConversionMatrixProps {
@@ -24,17 +27,65 @@ export const ConversionMatrix: React.FC<ConversionMatrixProps> = ({ onSelectCate
     <div className="space-y-6 pt-4">
       <div className="text-center space-y-2 max-w-2xl mx-auto">
         <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight font-['Plus_Jakarta_Sans']">
-          Convert Between Any Document Format
+          Universal Document & Image Studio
         </h2>
         <p className="text-xs sm:text-sm text-slate-400">
-          Everything runs 100% in your browser. Fast, private, with zero server uploads and ready to host anywhere.
+          Everything runs 100% client-side in your browser. Fast, private, zero server uploads, and ready to host anywhere.
         </p>
       </div>
 
-      {/* Grid of Conversion Capabilities */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Grid of Conversion & Utility Capabilities */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        {/* Card 1: PDF to Word / Docs */}
+        {/* Card 1: Photo & Signature Resizer */}
+        <div 
+          onClick={() => onSelectCategory('image-suite')}
+          className="group p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all duration-200 shadow-md flex flex-col justify-between"
+        >
+          <div className="space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-sm border border-amber-500/20">
+              <Crop className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white group-hover:text-amber-300 transition">
+                Photo, Visa & KB Sizer
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Resize candidate photos, passports (2x2&quot;, 35x45mm), and compress to exact KB limits (e.g. &lt; 50KB or 20KB).
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-amber-400 font-medium">
+            <span>Open Photo Resizer</span>
+            <span className="group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </div>
+
+        {/* Card 2: Interactive Signature Pad */}
+        <div 
+          onClick={() => onSelectCategory('sign-pdf')}
+          className="group p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition-all duration-200 shadow-md flex flex-col justify-between"
+        >
+          <div className="space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-sm border border-emerald-500/20">
+              <PenTool className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white group-hover:text-emerald-300 transition">
+                Draw, Sign & Stamp PDFs
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                Draw handwritten signatures on screen, export transparent PNGs, or place signatures onto contract PDF pages.
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-emerald-400 font-medium">
+            <span>Open Signature Pad</span>
+            <span className="group-hover:translate-x-1 transition-transform">→</span>
+          </div>
+        </div>
+
+        {/* Card 3: PDF to Word / Docs */}
         <div 
           onClick={() => onSelectCategory('pdf-to-other')}
           className="group p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition-all duration-200 shadow-md flex flex-col justify-between"
@@ -45,10 +96,10 @@ export const ConversionMatrix: React.FC<ConversionMatrixProps> = ({ onSelectCate
             </div>
             <div>
               <h3 className="font-semibold text-white group-hover:text-indigo-300 transition">
-                PDF ⇄ Word (.docx)
+                PDF ⇄ Word & Text
               </h3>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Extract text, paragraphs, headings, and data columns into editable Microsoft Word documents, or render DOCX to PDF.
+                Extract text, paragraphs, headings, and data columns into editable Microsoft Word DOCX documents.
               </p>
             </div>
           </div>
@@ -58,13 +109,13 @@ export const ConversionMatrix: React.FC<ConversionMatrixProps> = ({ onSelectCate
           </div>
         </div>
 
-        {/* Card 2: PDF to Images */}
+        {/* Card 4: PDF to Images */}
         <div 
           onClick={() => onSelectCategory('pdf-to-other')}
           className="group p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition-all duration-200 shadow-md flex flex-col justify-between"
         >
           <div className="space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-sm border border-emerald-500/20">
+            <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-sm border border-sky-500/20">
               <ImageIcon className="w-5 h-5" />
             </div>
             <div>
@@ -72,7 +123,7 @@ export const ConversionMatrix: React.FC<ConversionMatrixProps> = ({ onSelectCate
                 PDF ⇄ High-Res Images
               </h3>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Render every PDF page into crystal-clear PNG, JPG, or WebP at 72, 144, or 216 DPI with ZIP download, or combine photos into PDF.
+                Render every PDF page into crystal-clear PNG, JPG, or WebP at 72, 144, or 216 DPI with ZIP download.
               </p>
             </div>
           </div>
@@ -82,7 +133,7 @@ export const ConversionMatrix: React.FC<ConversionMatrixProps> = ({ onSelectCate
           </div>
         </div>
 
-        {/* Card 3: PDF to Excel / CSV */}
+        {/* Card 5: PDF to Excel / CSV */}
         <div 
           onClick={() => onSelectCategory('pdf-to-other')}
           className="group p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition-all duration-200 shadow-md flex flex-col justify-between"
@@ -96,7 +147,7 @@ export const ConversionMatrix: React.FC<ConversionMatrixProps> = ({ onSelectCate
                 PDF ⇄ Excel & CSV Data
               </h3>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Automatically extract tabular grids, invoice line items, and numeric data into .xlsx spreadsheets or universal CSV.
+                Automatically extract tabular grids, invoice line items, and numeric data into .xlsx spreadsheets.
               </p>
             </div>
           </div>
@@ -106,7 +157,7 @@ export const ConversionMatrix: React.FC<ConversionMatrixProps> = ({ onSelectCate
           </div>
         </div>
 
-        {/* Card 4: Markdown & Plain Text */}
+        {/* Card 6: Markdown & Plain Text */}
         <div 
           onClick={() => onSelectCategory('other-to-pdf')}
           className="group p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition-all duration-200 shadow-md flex flex-col justify-between"
@@ -120,7 +171,7 @@ export const ConversionMatrix: React.FC<ConversionMatrixProps> = ({ onSelectCate
                 Markdown / TXT ⇄ PDF
               </h3>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Transform Markdown notes, code snippets, and documentation into beautifully styled PDF reports with automatic pagination.
+                Transform Markdown notes, code snippets, and documentation into beautifully styled PDF reports.
               </p>
             </div>
           </div>
@@ -130,31 +181,31 @@ export const ConversionMatrix: React.FC<ConversionMatrixProps> = ({ onSelectCate
           </div>
         </div>
 
-        {/* Card 5: HTML / Web */}
+        {/* Card 7: Images & Docs to PDF */}
         <div 
-          onClick={() => onSelectCategory('pdf-to-other')}
+          onClick={() => onSelectCategory('other-to-pdf')}
           className="group p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition-all duration-200 shadow-md flex flex-col justify-between"
         >
           <div className="space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-sm border border-sky-500/20">
-              <Globe className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-sm border border-indigo-500/20">
+              <ArrowRightLeft className="w-5 h-5" />
             </div>
             <div>
               <h3 className="font-semibold text-white group-hover:text-indigo-300 transition">
-                HTML & JSON ⇄ PDF
+                Combine Images & Files to PDF
               </h3>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Generate clean, standalone HTML pages or structured JSON from PDF layouts, or render HTML code into PDF.
+                Assemble multiple photos, scans, receipts, or Word documents into a single unified multi-page PDF.
               </p>
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-indigo-400 font-medium">
-            <span>Try HTML Export</span>
+            <span>Try Combine to PDF</span>
             <span className="group-hover:translate-x-1 transition-transform">→</span>
           </div>
         </div>
 
-        {/* Card 6: PDF Toolbox */}
+        {/* Card 8: PDF Toolbox */}
         <div 
           onClick={() => onSelectCategory('pdf-tools')}
           className="group p-5 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-indigo-500/50 cursor-pointer transition-all duration-200 shadow-md flex flex-col justify-between"
@@ -165,10 +216,10 @@ export const ConversionMatrix: React.FC<ConversionMatrixProps> = ({ onSelectCate
             </div>
             <div>
               <h3 className="font-semibold text-white group-hover:text-indigo-300 transition">
-                Merge, Split, Watermark & Rotate
+                Merge, Split, Number & Compress
               </h3>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Powerful toolbox to merge multiple PDFs, extract pages into ZIPs, stamp confidential watermarks, or compress file sizes.
+                Merge PDFs, split pages, stamp page numbers, add watermarks, rotate pages, and compress file sizes.
               </p>
             </div>
           </div>
