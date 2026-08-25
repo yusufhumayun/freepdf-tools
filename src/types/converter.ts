@@ -1,6 +1,7 @@
 export type ConversionCategory = 
   | 'pdf-to-other' 
   | 'other-to-pdf' 
+  | 'ocr'
   | 'image-suite' 
   | 'sign-pdf' 
   | 'pdf-tools';

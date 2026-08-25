@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ConversionCategory, 
   FileItem, 
@@ -38,26 +38,79 @@ import { FileItemCard } from './components/FileItemCard';
 import { BatchSummaryBar } from './components/BatchSummaryBar';
 import { PdfToolsHub } from './components/PdfToolsHub';
 import { ConversionMatrix } from './components/ConversionMatrix';
-import { GithubDeployModal } from './components/GithubDeployModal';
 import { PageOrganizerModal } from './components/PageOrganizerModal';
+import { FeedbackModal } from './components/FeedbackModal';
 import { ImageSignatureSuite } from './components/ImageSignatureSuite';
 import { PdfSignaturePad } from './components/PdfSignaturePad';
+import { OcrExtractSuite } from './components/OcrExtractSuite';
+import { FaqSection } from './components/FaqSection';
 import { 
   ShieldCheck, 
   Zap, 
-  Github, 
   Layers, 
   Sparkles,
   Lock,
-  ArrowRightLeft
+  ArrowRightLeft,
+  ClipboardCheck,
+  Share2,
+  MessageSquare
 } from 'lucide-react';
 
 export default function App() {
   const [activeCategory, setActiveCategory] = useState<ConversionCategory>('pdf-to-other');
   const [fileItems, setFileItems] = useState<FileItem[]>([]);
   const [isConvertingAll, setIsConvertingAll] = useState(false);
-  const [isGithubModalOpen, setIsGithubModalOpen] = useState(false);
   const [organizerTargetItem, setOrganizerTargetItem] = useState<FileItem | null>(null);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [feedbackDefaultTab, setFeedbackDefaultTab] = useState<'feedback' | 'share'>('feedback');
+  const [clipboardToast, setClipboardToast] = useState<string | null>(null);
+
+  // Sync state with URL hash on mount & hash change for SEO deep-linking
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (['pdf-to-other', 'other-to-pdf', 'ocr', 'image-suite', 'sign-pdf', 'pdf-tools'].includes(hash)) {
+        setActiveCategory(hash as ConversionCategory);
+      }
+    };
+
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  // Update URL hash when category changes
+  const handleSelectCategory = (cat: ConversionCategory) => {
+    setActiveCategory(cat);
+    window.location.hash = cat;
+  };
+
+  // Global Clipboard Paste (Ctrl+V / Cmd+V) Listener
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      if (!e.clipboardData) return;
+      const items = e.clipboardData.items;
+      const pastedFiles: File[] = [];
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].kind === 'file') {
+          const file = items[i].getAsFile();
+          if (file) {
+            pastedFiles.push(file);
+          }
+        }
+      }
+
+      if (pastedFiles.length > 0) {
+        handleFilesSelected(pastedFiles);
+        setClipboardToast(`Pasted ${pastedFiles.length} file(s) from clipboard!`);
+        setTimeout(() => setClipboardToast(null), 3000);
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, []);
 
   // Handle new files dropped or selected
   const handleFilesSelected = async (newFiles: File[]) => {
@@ -336,14 +389,44 @@ export default function App() {
 
   const imageCountInQueue = fileItems.filter((it) => it.sourceFormat === 'image').length;
 
+  const handleQuickShare = async () => {
+    const shareUrl = window.location.origin;
+    const shareTitle = 'FreePDF Tools - Free Online PDF, OCR & Photo KB Suite';
+    const shareText = 'Check out FreePDF Tools: 100% Free & Private in-browser PDF, OCR and KB Photo Suite!';
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch (e) {
+        // User cancelled or fallback to clipboard
+      }
+    }
+
+    // Fallback: Copy link and display nice toast
+    navigator.clipboard.writeText(shareUrl);
+    setClipboardToast('Link copied to clipboard! Share it with friends & colleagues 🚀');
+    setTimeout(() => setClipboardToast(null), 3500);
+  };
+
+  const handleOpenFeedbackModal = (defaultTab: 'feedback' | 'share' = 'feedback') => {
+    setFeedbackDefaultTab(defaultTab);
+    setIsFeedbackModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-['Plus_Jakarta_Sans'] selection:bg-indigo-500 selection:text-white">
       
       {/* Header Bar */}
       <Header
         activeCategory={activeCategory}
-        onSelectCategory={setActiveCategory}
-        onOpenGithubGuide={() => setIsGithubModalOpen(true)}
+        onSelectCategory={handleSelectCategory}
+        onOpenFeedback={handleOpenFeedbackModal}
+        onQuickShare={handleQuickShare}
         fileCount={fileItems.length}
       />
 
@@ -351,7 +434,12 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
         
         {/* Dynamic Category View */}
-        {activeCategory === 'image-suite' ? (
+        {activeCategory === 'ocr' ? (
+          /* OPTICAL CHARACTER RECOGNITION (OCR) VIEW */
+          <div className="space-y-6">
+            <OcrExtractSuite />
+          </div>
+        ) : activeCategory === 'image-suite' ? (
           /* PHOTO & SIGNATURE RESIZER VIEW */
           <div className="space-y-6">
             <ImageSignatureSuite />
@@ -392,7 +480,7 @@ export default function App() {
                 <button
                   onClick={handleCombineAllImagesToSinglePdf}
                   disabled={isConvertingAll}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-md shadow-indigo-600/30 transition shrink-0"
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-md shadow-indigo-600/30 transition shrink-0 cursor-pointer"
                 >
                   Combine into 1 PDF
                 </button>
@@ -409,7 +497,7 @@ export default function App() {
                   </h3>
                   <button
                     onClick={handleClearAll}
-                    className="text-xs text-slate-500 hover:text-red-400 transition"
+                    className="text-xs text-slate-500 hover:text-red-400 transition cursor-pointer"
                   >
                     Clear queue
                   </button>
@@ -442,40 +530,67 @@ export default function App() {
 
             {/* Feature matrix & format overview */}
             {fileItems.length === 0 && (
-              <ConversionMatrix onSelectCategory={setActiveCategory} />
+              <ConversionMatrix onSelectCategory={handleSelectCategory} />
             )}
 
           </div>
         )}
 
+        {/* Global SEO Rich FAQ & Guides Section */}
+        <FaqSection />
+
       </main>
+
+      {/* Floating Clipboard Toast */}
+      {clipboardToast && (
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl bg-indigo-600 text-white font-medium text-xs sm:text-sm shadow-xl shadow-indigo-600/40 flex items-center gap-2 animate-bounce">
+          <ClipboardCheck className="w-4 h-4 text-emerald-300" />
+          <span>{clipboardToast}</span>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-slate-800/80 bg-slate-950 py-8 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
-            <Lock className="w-4 h-4 text-emerald-400" />
+            <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="text-slate-400">
-              Zero-Server Architecture: All conversions and optimizations are processed strictly in your client-side browser memory.
+              Zero-Server Architecture: All conversions, OCR, and optimizations run strictly inside your browser memory.
             </span>
           </div>
 
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => setIsGithubModalOpen(true)}
-              className="text-indigo-400 hover:text-indigo-300 font-medium flex items-center space-x-1"
+              onClick={() => handleOpenFeedbackModal('feedback')}
+              className="text-slate-400 hover:text-slate-200 transition flex items-center space-x-1 cursor-pointer"
             >
-              <Github className="w-3.5 h-3.5" />
-              <span>Deploy on GitHub Pages</span>
+              <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
+              <span>Contact & Feedback</span>
             </button>
+
+            <button
+              onClick={() => handleOpenFeedbackModal('share')}
+              className="text-slate-400 hover:text-slate-200 transition flex items-center space-x-1 cursor-pointer"
+            >
+              <Share2 className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Share App</span>
+            </button>
+
+            <a
+              href="#faq"
+              className="text-slate-400 hover:text-slate-200 transition"
+            >
+              Privacy & FAQ
+            </a>
           </div>
         </div>
       </footer>
 
-      {/* GitHub Deploy Guide Modal */}
-      <GithubDeployModal
-        isOpen={isGithubModalOpen}
-        onClose={() => setIsGithubModalOpen(false)}
+      {/* Feedback & Share Modal */}
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+        defaultTab={feedbackDefaultTab}
       />
 
       {/* Page Organizer Modal */}

@@ -5,24 +5,29 @@ import {
   ArrowRightLeft, 
   Layers, 
   ShieldCheck, 
-  Github, 
   Sparkles,
   Zap,
   Crop,
-  PenTool
+  PenTool,
+  FileText,
+  HelpCircle,
+  Share2,
+  MessageSquare
 } from 'lucide-react';
 
 interface HeaderProps {
   activeCategory: ConversionCategory;
   onSelectCategory: (category: ConversionCategory) => void;
-  onOpenGithubGuide: () => void;
+  onOpenFeedback: (defaultTab?: 'feedback' | 'share') => void;
+  onQuickShare: () => void;
   fileCount: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   activeCategory,
   onSelectCategory,
-  onOpenGithubGuide,
+  onOpenFeedback,
+  onQuickShare,
   fileCount,
 }) => {
   return (
@@ -53,13 +58,13 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Center Category Navigation Tabs (Scrollable on small mobile) */}
+          {/* Center Category Navigation Tabs (Scrollable on mobile) */}
           <div className="overflow-x-auto no-scrollbar py-1">
             <nav className="flex items-center p-1 bg-slate-950/80 rounded-xl border border-slate-800/80 shadow-inner whitespace-nowrap">
               <button
                 id="tab-pdf-to-other"
                 onClick={() => onSelectCategory('pdf-to-other')}
-                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
                   activeCategory === 'pdf-to-other'
                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -72,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="tab-other-to-pdf"
                 onClick={() => onSelectCategory('other-to-pdf')}
-                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
                   activeCategory === 'other-to-pdf'
                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -83,9 +88,23 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
+                id="tab-ocr"
+                onClick={() => onSelectCategory('ocr')}
+                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
+                  activeCategory === 'ocr'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                }`}
+                title="Extract text from scanned PDFs & Images (OCR)"
+              >
+                <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                <span>OCR & Text</span>
+              </button>
+
+              <button
                 id="tab-image-suite"
                 onClick={() => onSelectCategory('image-suite')}
-                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
                   activeCategory === 'image-suite'
                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -98,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="tab-sign-pdf"
                 onClick={() => onSelectCategory('sign-pdf')}
-                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
                   activeCategory === 'sign-pdf'
                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -111,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="tab-pdf-tools"
                 onClick={() => onSelectCategory('pdf-tools')}
-                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer ${
                   activeCategory === 'pdf-tools'
                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
@@ -126,15 +145,36 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Action Buttons */}
           <div className="flex items-center space-x-2 shrink-0">
+            {/* 1-Click Share Button */}
             <button
-              id="btn-open-github-guide"
-              onClick={onOpenGithubGuide}
-              className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition shadow-sm"
-              title="Learn how to host this on GitHub Pages for free"
+              id="btn-header-share"
+              onClick={onQuickShare}
+              className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition shadow-sm cursor-pointer"
+              title="Share FreePDF Tools (Copies link or opens share menu)"
             >
-              <Github className="w-3.5 h-3.5 text-slate-300" />
-              <span className="hidden md:inline">Deploy Guide</span>
+              <Share2 className="w-3.5 h-3.5 text-indigo-400" />
+              <span className="hidden sm:inline">Share</span>
             </button>
+
+            {/* Feedback / Contact Button */}
+            <button
+              id="btn-header-feedback"
+              onClick={() => onOpenFeedback('feedback')}
+              className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition shadow-sm cursor-pointer"
+              title="Send Feedback, report bug, or request a tool"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">Feedback</span>
+            </button>
+
+            <a
+              href="#faq"
+              className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 transition"
+              title="View FAQ & Help"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-indigo-400" />
+              <span className="hidden md:inline">FAQ & Help</span>
+            </a>
           </div>
 
         </div>
