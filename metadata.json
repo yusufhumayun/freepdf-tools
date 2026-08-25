@@ -1,0 +1,6 @@
+{
+  "name": "OmniPDF Studio",
+  "description": "Convert any PDF to DOCX, Excel, Images, Text, HTML, CSV and vice versa with 100% browser-based privacy.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
